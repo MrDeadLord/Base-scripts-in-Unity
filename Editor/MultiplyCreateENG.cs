@@ -1,24 +1,24 @@
 ﻿///Made by https://github.com/MrDeadLord
-///Есть вопросы? Вам сюда:/suggestions: https://stackoverflow.com/users/13863823/dead-lord
-///или сюда: https://www.facebook.com/Mr.D.Lord
+///Any questions/suggestions: https://stackoverflow.com/users/13863823/dead-lord
+///or here: https://www.facebook.com/Mr.D.Lord
 ///
-///Надеюсь хоть кому-то понравится и пригодится ^_^
+///Feel free to use. Hope you'll enjoy it ^_^
 ///
-///С помощью этого скрипта можно расположить объекты с заданным расстоянием и поворотом
+///Here you can make fine randon rocks placing, bot spawnpoints or anything you like
 
 using UnityEditor;
 using UnityEngine;
 
 public class MultiplyCreate : EditorWindow
 {
-    #region ========== Переменные ========
+    #region ========== Variables ========
 
     /// <summary>
-    /// Умножаемый объект
+    /// Multiplying object
     /// </summary>
     private GameObject gameObj;
     /// <summary>
-    /// Кол-во умножаемых объектов
+    /// Quantity
     /// </summary>
     private int count;
     Vector3 startPosition;
@@ -28,20 +28,20 @@ public class MultiplyCreate : EditorWindow
     private Vector3 spawnPosition;
     private Quaternion startRotation;
 
-    //Доп настройки
+    //Addiction settings
     private bool isAdvanced = false;
-    private string objName = "multiplied";  //Стандартное имя
+    private string objName = "multiplied";  //Standart name
     bool isGrouped;
-    string parentsName = "Parent"; //Стандартное имя родителя
+    string parentsName = "Parent"; //Standart parent name
 
     /// <summary>
-    /// На сколько будет поворачиватся каждый последующий объект
+    /// Rotation of every next object
     /// </summary>
     private Quaternion nextRotation;
 
-    private Vector3 startRot, nextRot, offset;  //Временные переменные
+    private Vector3 startRot, nextRot, offset;  //temp variables
 
-    #endregion ========== Переменные ========
+    #endregion ========== Variables ========
 
     [MenuItem("DeadLords/Create Multiply Objects %#d", false, 1)]
     public static void MultiplyWindow()
@@ -51,56 +51,55 @@ public class MultiplyCreate : EditorWindow
 
     private void OnGUI()
     {
-        GUILayout.Label("Настройки создания объектов", EditorStyles.boldLabel);
+        GUILayout.Label("Creating settings", EditorStyles.boldLabel);
         GUILayout.Space(10);
 
         if (Selection.activeGameObject)
         {
-            gameObj = Selection.activeGameObject;   //Выделенный объект попадает в поле объекта
-            startPosition = gameObj.transform.position; //Позиция объекта записывается в поле позиции старта
-
+            gameObj = Selection.activeGameObject;   // Selecting selected in scene view object
+            startPosition = gameObj.transform.position; // His position become start position
             startRot = gameObj.transform.rotation.eulerAngles;
-            startRotation = gameObj.transform.rotation; //Поворот записывается в поле стартового поворота
+            startRotation = gameObj.transform.rotation; // His rotation is now in start rotation
         }
 
 
-        gameObj = EditorGUILayout.ObjectField("Объект умножения", gameObj, typeof(GameObject), true) as GameObject;
+        gameObj = EditorGUILayout.ObjectField("Multiplying object", gameObj, typeof(GameObject), true) as GameObject;
 
-        count = EditorGUILayout.IntSlider("Кол-во объектов", count, 1, 100);
+        count = EditorGUILayout.IntSlider("Amount of objects", count, 1, 100);
 
-        spaceBetween = EditorGUILayout.Slider("Расстояние между объектами", spaceBetween, 0, 50);
+        spaceBetween = EditorGUILayout.Slider("Distance betwin objects", spaceBetween, 0, 50);
 
-        directionIndex = EditorGUILayout.Popup("Направление умножения", directionIndex, directions);
+        directionIndex = EditorGUILayout.Popup("Multiply direction", directionIndex, directions);
 
         GUILayout.Space(5);
-        startPosition = EditorGUILayout.Vector3Field("Расположение первого объекта", startPosition);
+        startPosition = EditorGUILayout.Vector3Field("Start position of first object", startPosition);
 
-        startRot = EditorGUILayout.Vector3Field("Поворот первого объекта", startRot);
+        startRot = EditorGUILayout.Vector3Field("Rotation of the first object", startRot);
         startRotation = Quaternion.Euler(startRot);
 
         GUILayout.Space(5);
-        nextRot = EditorGUILayout.Vector3Field("Поворот следующих объектов", nextRot);
+        nextRot = EditorGUILayout.Vector3Field("Rotation of each next object", nextRot);
 
         #region ===== Доп. параметры ====
 
         GUILayout.Space(10);
-        isAdvanced = EditorGUILayout.BeginToggleGroup("Доп. параметры", isAdvanced);
+        isAdvanced = EditorGUILayout.BeginToggleGroup("Addictional settings", isAdvanced);
 
-        objName = EditorGUILayout.TextField("Имя объектов", objName);
-
-        GUILayout.Space(5);
-        offset = EditorGUILayout.Vector3Field("Дополнительное смещение последующих объектов", offset);
+        objName = EditorGUILayout.TextField("Objects name", objName);
 
         GUILayout.Space(5);
-        isGrouped = EditorGUILayout.BeginToggleGroup("Группировать под один объект", isGrouped);
-        parentsName = EditorGUILayout.TextField("Имя родительского объекта", parentsName);
+        offset = EditorGUILayout.Vector3Field("Addictional offset", offset);
+
+        GUILayout.Space(5);
+        isGrouped = EditorGUILayout.BeginToggleGroup("Grouping under one object", isGrouped);
+        parentsName = EditorGUILayout.TextField("Parent object's name", parentsName);
         EditorGUILayout.EndToggleGroup();
 
         EditorGUILayout.EndToggleGroup();
 
         #endregion ===== Доп. параметры ====
 
-        if (GUILayout.Button("Создать объекты"))
+        if (GUILayout.Button("Create objects"))
         {
             if (isGrouped)
             {
@@ -116,16 +115,16 @@ public class MultiplyCreate : EditorWindow
     }
 
     /// <summary>
-    /// Создание объектов в зависимости от выбранных параметров
+    /// Creating objects based on selected parameters
     /// </summary>
-    /// <param name="parent">Объект под который нужно объеденить. Если не нужно - null</param>
+    /// <param name="parent">Parent name. If no need - null</param>
     private void CreateObjects(Transform parent)
     {
         Vector3 rot = new Vector3(0, 0, 0);
 
         switch (directionIndex)
         {
-            //+x Ибо по умолчанию это именно +x
+            //+x cuz default is +x
             default:
                 for (int i = 0; i < count; i++)
                 {
@@ -137,8 +136,8 @@ public class MultiplyCreate : EditorWindow
                     }
                     else
                     {
-                        spawnPosition.x += spaceBetween;    // Добавление расстояния между объектами
-                        spawnPosition += offset;    // Добавление оффсета, если он есть
+                        spawnPosition.x += spaceBetween;    // Addint distance betwin objects
+                        spawnPosition += offset;    // Adding offset
                         rot += nextRot;
                         nextRotation = Quaternion.Euler(rot);   // Vector3 => Quaternion
 
